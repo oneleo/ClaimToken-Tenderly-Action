@@ -6,7 +6,7 @@ import {
   claimedDaiPayload,
   claimedWbtcPayload,
   claimedLonPayload,
-} from "./fixtures/handleOpsPayload";
+} from "./fixtures/claimedPayload";
 
 const claimTokenList = [
   {
@@ -143,7 +143,7 @@ describe("TestActions", () => {
     await testRuntime.execute(actionFn, claimedUsdtPayload);
 
     const claimedEvent: ClaimedEventParams[] =
-      await testRuntime.context.storage.getJson("claimedEvent");
+      await testRuntime.context.storage.getJson("ClaimedEvent");
 
     expect(claimedEvent[0].tokenAddress).to.eq(
       "0x63b26b83c6f38433B2b6a7214fC2c569a4F4069A"
@@ -171,7 +171,7 @@ describe("TestActions", () => {
     await testRuntime.execute(actionFn, claimedDaiPayload);
 
     const claimedEvent: ClaimedEventParams[] =
-      await testRuntime.context.storage.getJson("claimedEvent");
+      await testRuntime.context.storage.getJson("ClaimedEvent");
 
     expect(claimedEvent[0].tokenAddress).to.eq(
       "0xC8c4EFA54D6774F55DD09134a901865ff286321e"
@@ -199,7 +199,7 @@ describe("TestActions", () => {
     await testRuntime.execute(actionFn, claimedWbtcPayload);
 
     const claimedEvent: ClaimedEventParams[] =
-      await testRuntime.context.storage.getJson("claimedEvent");
+      await testRuntime.context.storage.getJson("ClaimedEvent");
 
     expect(claimedEvent[0].tokenAddress).to.eq(
       "0x7fA5E99D78FB17379C467B3dC5D0F63AcED6a80D"
@@ -227,7 +227,7 @@ describe("TestActions", () => {
     await testRuntime.execute(actionFn, claimedLonPayload);
 
     const claimedEvent: ClaimedEventParams[] =
-      await testRuntime.context.storage.getJson("claimedEvent");
+      await testRuntime.context.storage.getJson("ClaimedEvent");
 
     expect(claimedEvent[0].tokenAddress).to.eq(
       "0x6C1851b852F05bdc7c0BE1A088532E4999fD94Fa"
