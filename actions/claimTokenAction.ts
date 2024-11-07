@@ -135,12 +135,12 @@ const parseClaimedEvent = (params: {
 
       // Push valid event to result
       claimed.push({
-        claimHash,
+        claimHash: hexlify(claimHash),
         tokenAddress,
         eventID,
         userAddress,
         amount,
-        signerSignature,
+        signerSignature: hexlify(signerSignature),
       });
 
       return claimed;
@@ -227,7 +227,7 @@ const getTokenBalance = async (
   chainId: number,
   tokenAddress: string,
   accountAddress: string,
-  alchemyApiKey: string
+  alchemyApiKey?: string
 ): Promise<{ balance: bigint; decimals: number }> => {
   if (!alchemyApiKey) {
     console.error(`Alchemy api key not found`);
@@ -436,7 +436,7 @@ export const actionFn: ActionFn = async (context: Context, event: Event) => {
       continue;
     }
 
-    await pushToStorage(context, "claimedEvent", claimedLog);
+    await pushToStorage(context, "ClaimedEvent", claimedLog);
 
     const totalAmount = token.totalAmount;
     const tokenSymbol = token.tokenSymbol;
