@@ -1,0 +1,66 @@
+account_id: ""
+project_slug: ""
+actions:
+  irarachen/monitoring:
+    # Tenderly project name
+    runtime: v2
+    sources: actions
+    specs:
+      claimtoken:
+        # Tenderly Web3 Actions name
+        description: Monitoring if the specified token balance in ClaimToken contract falls below the threshold.
+        execution_type: parallel # Options: parallel, sequential
+        function: claimTokenAction:actionFn # Format: <file name>:<function name>
+        # Note: Tenderly Web3 Actions only supports one TypeScript file;
+        # all custom functions must be in that file.
+        trigger:
+          type: transaction
+          transaction:
+            status:
+              - mined
+            filters:
+              - network: 11155111
+                # Transaction must come from the network with network ID 11155111 Sepolia
+                status: success
+                # Transaction must have succeeded
+                to: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                # Transaction must have been sent to ClaimToken contract
+                logEmitted:
+                  # Transaction must have emitted a log entry
+                  contract:
+                    address: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                    # coming from the ClaimToken contract at this address
+                  startsWith:
+                    # and topics of the log entry must start with either one of these
+                    - 0x8d57f9f57997efb57ed0839bfe4bb920cfb8004fd80cdac63be1acd419d4c28a
+                    # Claimed(bytes32,address,string,address,uint256,bytes)
+              - network: 11155420
+                # Transaction must come from the network with network ID 11155420 Optimism Sepolia
+                status: success
+                # Transaction must have succeeded
+                to: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                # Transaction must have been sent to ClaimToken contract
+                logEmitted:
+                  # Transaction must have emitted a log entry
+                  contract:
+                    address: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                    # coming from the ClaimToken contract at this address
+                  startsWith:
+                    # and topics of the log entry must start with either one of these
+                    - 0x8d57f9f57997efb57ed0839bfe4bb920cfb8004fd80cdac63be1acd419d4c28a
+                    # Claimed(bytes32,address,string,address,uint256,bytes)
+              - network: 421614
+                # Transaction must come from the network with network ID 421614 Arbitrum Sepolia
+                status: success
+                # Transaction must have succeeded
+                to: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                # Transaction must have been sent to ClaimToken contract
+                logEmitted:
+                  # Transaction must have emitted a log entry
+                  contract:
+                    address: 0x5ad1DAb7BfFdB622AF8B88882DDE9EDF1F01F17A
+                    # coming from the ClaimToken contract at this address
+                  startsWith:
+                    # and topics of the log entry must start with either one of these
+                    - 0x8d57f9f57997efb57ed0839bfe4bb920cfb8004fd80cdac63be1acd419d4c28a
+                    # Claimed(bytes32,address,string,address,uint256,bytes)
