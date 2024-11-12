@@ -19,8 +19,8 @@ import {
 import axios from "axios";
 
 // Constants for percentage and target decimals
-const bufferAmountPercentage = 20n;
-const alarmAmountPercentage = 10n;
+// const bufferAmountPercentage = 30n;
+const alarmAmountPercentage = [20n, 15n, 10n, 5n];
 const storageTotalAmountTargetDecimals = 6;
 
 // Identifier for Claimed event
@@ -336,7 +336,7 @@ const notifySlack = async (
   const payload = {
     username: "webhookbot",
     text: slackText,
-    icon_emoji: ":money:",
+    icon_emoji: ":moneybag:",
   };
 
   console.log(`Sending to Slack: ${slackText}`);
@@ -357,14 +357,14 @@ const notifySlack = async (
 };
 
 // Append a value to a JSON array in Tenderly Web3 Action storage
-const pushToStorage = async (context: Context, key: string, value: any) => {
-  let jsonData = await context.storage.getJson(key);
-  if (jsonData && Object.keys(jsonData).length === 0) {
-    jsonData = [];
-  }
-  jsonData.push(JSON.parse(jsonStringify(value)));
-  await context.storage.putJson(key, jsonData);
-};
+// const pushToStorage = async (context: Context, key: string, value: any) => {
+//   let jsonData = await context.storage.getJson(key);
+//   if (jsonData && Object.keys(jsonData).length === 0) {
+//     jsonData = [];
+//   }
+//   jsonData.push(JSON.parse(jsonStringify(value)));
+//   await context.storage.putJson(key, jsonData);
+// };
 
 export const actionFn: ActionFn = async (context: Context, event: Event) => {
   //   printJson("context", context);
@@ -436,7 +436,11 @@ export const actionFn: ActionFn = async (context: Context, event: Event) => {
       continue;
     }
 
-    await pushToStorage(context, "ClaimedEvent", claimedLog);
+    // await pushToStorage(context, "ClaimedEvent", claimedLog);
+    await context.storage.putJson(
+      "ClaimedEvent",
+      JSON.parse(jsonStringify(claimedLog))
+    );
 
     const totalAmount = token.totalAmount;
     const tokenSymbol = token.tokenSymbol;
@@ -477,15 +481,28 @@ export const actionFn: ActionFn = async (context: Context, event: Event) => {
     console.log(`decimals:\t${tokenOfClaimTokenContract.decimals}`);
     console.log(`balance:\t${tokenOfClaimTokenContract.balance}`);
 
-    const alarmAmount =
+    // const alarmAmount =
+    //   (BigInt(
+    //     Math.floor(totalAmount * 10 ** storageTotalAmountTargetDecimals)
+    //   ) *
+    //     alarmAmountPercentage *
+    //     10n ** BigInt(tokenOfClaimTokenContract.decimals)) /
+    //   10n ** BigInt(storageTotalAmountTargetDecimals) /
+    //   10n ** 2n;
+
+    const baseAlarmAmount =
       (BigInt(
         Math.floor(totalAmount * 10 ** storageTotalAmountTargetDecimals)
       ) *
-        bufferAmountPercentage *
-        alarmAmountPercentage *
         10n ** BigInt(tokenOfClaimTokenContract.decimals)) /
-      10n ** BigInt(storageTotalAmountTargetDecimals) /
-      10n ** 4n;
+      10n ** BigInt(storageTotalAmountTargetDecimals);
+
+    const alarmAmount: bigint[] = [];
+
+    for (const percentage of alarmAmountPercentage) {
+      const amount = (baseAlarmAmount * percentage) / 10n ** 2n;
+      alarmAmount.push(amount);
+    }
 
     console.log(`alarmAmount:\t${alarmAmount}`);
 
@@ -494,26 +511,40 @@ export const actionFn: ActionFn = async (context: Context, event: Event) => {
       tokenOfClaimTokenContract.decimals
     );
 
-    const formattedAlarmAmount = formatTokenBalance(
-      alarmAmount,
-      tokenOfClaimTokenContract.decimals
-    );
+    for (const alarm of alarmAmount) {
+      const formattedAlarmAmount = formatTokenBalance(
+        alarm,
+        tokenOfClaimTokenContract.decimals
+      );
 
-    if (alarmAmount >= tokenOfClaimTokenContract.balance) {
-      const text = `(Tenderly Web3 Actions) ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName} fell below threshold (${formattedAlarmAmount}), triggered by Claimed event in tx: ${transactionScanUrl} .`;
+      if (
+        tokenOfClaimTokenContract.balance <= alarm &&
+        tokenOfClaimTokenContract.balance + claimedLog.amount > alarm
+      ) {
+        //   const text = `(Tenderly Web3 Actions) ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName} fell below threshold (${formattedAlarmAmount}), triggered by Claimed event in tx: ${transactionScanUrl} .`;
+        const text = `(Tenderly) ClaimToken's ${tokenSymbol} balance (${formattedBalance}) on ${networkName} is fell below threshold (${formattedAlarmAmount})!`;
 
-      console.warn(`text: ${text}`);
+        console.warn(`text: ${text}`);
 
-      // Notify Discord
-      await notifyDiscord(text, jsonStringify(claimedLog), discordWebhookLink);
+        // Notify Discord
+        await notifyDiscord(
+          text,
+          jsonStringify(claimedLog),
+          discordWebhookLink
+        );
 
-      // Notify Slack
-      await notifySlack(text, jsonStringify(claimedLog), slackWebhookLink);
-      return;
+        // Notify Slack
+        await notifySlack(text, "", slackWebhookLink);
+        return;
+      }
+
+      //   console.log(
+      //     `ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName} exceeds threshold (${formattedAlarmAmount}), so it's sufficient.`
+      //   );
+      console.log(
+        `ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName}. Note: threshold is (${formattedAlarmAmount}).`
+      );
     }
-    console.log(
-      `ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName} exceeds threshold (${formattedAlarmAmount}), so it's sufficient.`
-    );
   }
 
   console.log(`Tenderly Web3 Action script completed`);
