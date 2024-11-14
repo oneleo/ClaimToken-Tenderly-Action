@@ -519,7 +519,7 @@ export const actionFn: ActionFn = async (context: Context, event: Event) => {
 
       if (
         tokenOfClaimTokenContract.balance <= alarm &&
-        tokenOfClaimTokenContract.balance + claimedLog.amount > alarm
+        tokenOfClaimTokenContract.balance + claimedLog.amount >= alarm
       ) {
         //   const text = `(Tenderly Web3 Actions) ClaimToken contract's ${tokenSymbol} (${tokenAddressScanUrl} ) balance (${formattedBalance}) on ${networkName} fell below threshold (${formattedAlarmAmount}), triggered by Claimed event in tx: ${transactionScanUrl} .`;
         const text = `(Tenderly) ClaimToken's ${tokenSymbol} balance (${formattedBalance}) on ${networkName} is fell below threshold (${formattedAlarmAmount})!`;

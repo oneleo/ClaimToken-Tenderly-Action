@@ -19,7 +19,7 @@ const claimTokenList = [
     chainId: 10,
     tokenSymbol: "USDT",
     tokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-    totalAmount: 597,
+    totalAmount: 1194,
   },
   {
     chainId: 42161,
@@ -43,7 +43,7 @@ const claimTokenList = [
     chainId: 42161,
     tokenSymbol: "WBTC",
     tokenAddress: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
-    totalAmount: 0.00003,
+    totalAmount: 0.0069,
   },
   {
     chainId: 42161,
@@ -55,7 +55,7 @@ const claimTokenList = [
     chainId: 42161,
     tokenSymbol: "WETH",
     tokenAddress: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-    totalAmount: 0.0009,
+    totalAmount: 0.18392,
   },
   {
     chainId: 11155111,
